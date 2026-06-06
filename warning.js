@@ -2,6 +2,7 @@
 (function() {
     const warningBoxIsExpand = false;//启动时盒子是否展开
 	const warningBoxMessageExpand = false;//有消息时盒子是否自动展开
+    const warningUlAutoScroll = true;//是否自动滚动到底部
     /* 以上const修饰的变量值可更改 */
 
 	let offsetX, offsetY;
@@ -301,6 +302,7 @@
 	window._debugCountBox = warningCount;
 	window._debugCounter = -1;
     window._debugMessageExpand = warningBoxMessageExpand;
+    window._debugAutoScroll = warningUlAutoScroll;
 })();
 
 // ========== 第二步：封装创建 li 元素的全局函数 ==========
@@ -329,7 +331,8 @@
         websocket: '#e74c3c',
         iframe: '#16a085',
         vue: '#42b883',
-        react: '#61dafb'
+        react: '#61dafb',
+        add_warning: '#9b59b6'
     };
     
     // 统一的转义函数
@@ -827,7 +830,7 @@
         }
         warningUl.appendChild(li);
         let lastLi = warningUl.lastElementChild;
-        if (lastLi) {
+        if (lastLi && window._debugAutoScroll) {
             lastLi.scrollIntoView(false);
         }
         return true;
@@ -989,7 +992,7 @@
         }
         warningUl.appendChild(li);
         let lastLi = warningUl.lastElementChild;
-        if (lastLi) {
+        if (lastLi && window._debugAutoScroll) {
             lastLi.scrollIntoView(false);
         }
     }
@@ -1787,41 +1790,9 @@
 
 // ========== 第十二步：提供手动添加方法 ==========
 window.add_warning = function(...args) {
-    if (args.length === 0) {
-        let li = window._createDebugLi('', 'log', {
-            htmlContent: ''
-        });
-        window._appendToDebug(li);
-        return;
-    }
-    
-    // 检测第一个参数是否为类型（兼容原有用法和第一个JS文件的用法）
-    // 第一个JS文件用法: add_warning(text) 或 add_warning(text, type)
-    // 第二个JS文件用法: add_warning(type, ...args)
-    let type = 'log';
-    let contentArgs = args;
-    
-    // 如果第一个参数是有效的类型名
-    if (args.length >= 1 && typeof args[0] === 'string' && window._debugColors[args[0]]) {
-        type = args[0];
-        contentArgs = Array.from(args).slice(1);
-    }
-    // 如果只有一个参数且不是类型名，保持 'log' 类型
-    else if (args.length === 1 && typeof args[0] === 'string') {
-        // 检查是否是已知类型
-        if (window._debugColors[args[0].toLowerCase()]) {
-            type = args[0].toLowerCase();
-            contentArgs = [];
-        } else {
-            type = 'log';
-            contentArgs = args;
-        }
-    }
-    // 如果第一个参数是数字或其他类型，使用 'log' 类型
-    else if (args.length >= 1 && typeof args[0] !== 'string') {
-        type = 'log';
-        contentArgs = args;
-    }
+    // 固定类型为 'add_warning'，不使用参数传递的类型
+    let type = 'add_warning';  // ← 关键修改：固定类型
+    let contentArgs = args;     // 所有参数都是内容，不再有类型参数
     
     // 如果没有内容，添加空行
     if (contentArgs.length === 0) {
@@ -1835,7 +1806,6 @@ window.add_warning = function(...args) {
     let hasCssStyle = typeof firstContentArg === 'string' && firstContentArg.includes('%c');
     
     if (hasCssStyle) {
-        // 解析CSS样式
         let cssResult = parseCSSStylesForWarning(contentArgs);
         if (cssResult) {
             let li = window._createDebugLi(cssResult.resultText, type, {
