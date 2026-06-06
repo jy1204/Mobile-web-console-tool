@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>性能分析器测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button.danger {
+            background: #dc3545;
+        }
+        button.danger:hover {
+            background: #c82333;
+        }
+        button.success {
+            background: #28a745;
+        }
+        button.success:hover {
+            background: #218838;
+        }
+        .test-area {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 3px solid #007bff;
+            font-family: monospace;
+        }
+        h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        hr {
+            margin: 20px 0;
+        }
+    </style>
+	<script src="warning.js" type="text/javascript" charset="utf-8"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 性能分析器测试</h1>
+        
+        <div class="test-area">
+            <h3>基础测试</h3>
+            <button onclick="testBasic()">测试空监控</button>
+            <button onclick="testWithDelay()">测试延迟操作</button>
+            <button onclick="testHeavyOperation()">测试重操作</button>
+        </div>
+
+        <div class="test-area">
+            <h3>多标签测试</h3>
+            <button onclick="testMultipleLabels()">测试多个标签</button>
+            <button onclick="testConcurrent()">测试并发监控</button>
+        </div>
+
+        <div class="test-area">
+            <h3>动画性能测试</h3>
+            <button onclick="testAnimation()">测试动画性能</button>
+            <button onclick="stopAnimation()">停止动画</button>
+            <div id="animationBox" style="width: 100px; height: 100px; background: red; margin-top: 20px; border-radius: 10px;"></div>
+        </div>
+
+        <div class="test-area">
+            <h3>DOM操作性能测试</h3>
+            <button onclick="testDOMOperation()">测试DOM操作</button>
+            <div id="domResult"></div>
+        </div>
+
+        <div class="test-area">
+            <h3>对比测试</h3>
+            <button onclick="testComparison()">对比优化前后</button>
+        </div>
+
+        <div class="test-area">
+            <h3>长时间监控</h3>
+            <button onclick="startLongMonitor()">开始5秒监控</button>
+            <button onclick="testLongOperation()">执行长时间任务</button>
+        </div>
+    </div>
+    <script>
+        // ========== 测试函数 ==========
+        
+        // 1. 基础测试：空监控
+        function testBasic() {
+            console.log('=== 测试基础功能 ===');
+            window.performanceAnalyzer.startMonitoring('基础测试');
+            
+            // 模拟一些简单操作
+            for(let i = 0; i < 100; i++) {
+                Math.random();
+            }
+            
+            setTimeout(() => {
+                window.performanceAnalyzer.endMonitoring('基础测试');
+            }, 100);
+        }
+        
+        // 2. 测试延迟操作
+        function testWithDelay() {
+            console.log('=== 测试延迟操作 ===');
+            window.performanceAnalyzer.startMonitoring('延迟操作');
+            
+            setTimeout(() => {
+                console.log('执行延迟任务');
+                window.performanceAnalyzer.endMonitoring('延迟操作');
+            }, 2000);
+        }
+        
+        // 3. 测试重操作（CPU密集型）
+        function testHeavyOperation() {
+            console.log('=== 测试重操作 ===');
+            window.performanceAnalyzer.startMonitoring('重操作');
+            
+            // 模拟大量计算
+            let sum = 0;
+            for(let i = 0; i < 10000000; i++) {
+                sum += Math.sqrt(i);
+            }
+            console.log('计算结果:', sum);
+            
+            window.performanceAnalyzer.endMonitoring('重操作');
+        }
+        
+        // 4. 测试多个标签
+        function testMultipleLabels() {
+            console.log('=== 测试多个标签 ===');
+            
+            window.performanceAnalyzer.startMonitoring('任务1');
+            window.performanceAnalyzer.startMonitoring('任务2');
+            window.performanceAnalyzer.startMonitoring('任务3');
+            
+            // 模拟不同时长的任务
+            setTimeout(() => {
+                window.performanceAnalyzer.endMonitoring('任务1');
+            }, 500);
+            
+            setTimeout(() => {
+                window.performanceAnalyzer.endMonitoring('任务2');
+            }, 1000);
+            
+            setTimeout(() => {
+                window.performanceAnalyzer.endMonitoring('任务3');
+            }, 1500);
+        }
+        
+        // 5. 测试并发监控
+        function testConcurrent() {
+            console.log('=== 测试并发监控 ===');
+            
+            // 同时启动多个监控
+            window.performanceAnalyzer.startMonitoring('并发-A');
+            window.performanceAnalyzer.startMonitoring('并发-B');
+            
+            // 执行不同操作
+            for(let i = 0; i < 1000000; i++) {
+                Math.sin(i);
+            }
+            
+            setTimeout(() => {
+                for(let i = 0; i < 5000000; i++) {
+                    Math.cos(i);
+                }
+                window.performanceAnalyzer.endMonitoring('并发-B');
+            }, 100);
+            
+            setTimeout(() => {
+                window.performanceAnalyzer.endMonitoring('并发-A');
+            }, 200);
+        }
+        
+        // 6. 测试动画性能
+        let animationId;
+        let angle = 0;
+        
+        function testAnimation() {
+            console.log('=== 测试动画性能 ===');
+            window.performanceAnalyzer.startMonitoring('动画性能');
+            
+            function animate() {
+                angle += 5;
+                let box = document.getElementById('animationBox');
+                if (box) {
+                    let x = Math.sin(angle * Math.PI / 180) * 200;
+                    let y = Math.cos(angle * Math.PI / 180) * 100;
+                    box.style.transform = `translate(${x}px, ${y}px) rotate(${angle}deg)`;
+                }
+                animationId = requestAnimationFrame(animate);
+            }
+            
+            animate();
+            
+            // 5秒后结束监控
+            setTimeout(() => {
+                cancelAnimationFrame(animationId);
+                window.performanceAnalyzer.endMonitoring('动画性能');
+                console.log('动画已停止，性能报告已生成');
+            }, 5000);
+        }
+        
+        function stopAnimation() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                console.log('动画已手动停止');
+            }
+        }
+        
+        // 7. 测试DOM操作性能
+        function testDOMOperation() {
+            console.log('=== 测试DOM操作性能 ===');
+            window.performanceAnalyzer.startMonitoring('DOM操作');
+            
+            let container = document.getElementById('domResult');
+            container.innerHTML = '';
+            
+            // 性能差的DOM操作
+            for(let i = 0; i < 1000; i++) {
+                let div = document.createElement('div');
+                div.textContent = `项目 ${i}`;
+                container.appendChild(div);
+            }
+            
+            window.performanceAnalyzer.endMonitoring('DOM操作');
+        }
+        
+        // 8. 对比测试（优化前 vs 优化后）
+        function testComparison() {
+            console.log('=== 对比测试 ===');
+            
+            // 测试优化前（直接操作DOM）
+            window.performanceAnalyzer.startMonitoring('优化前-直接DOM操作');
+            let container = document.getElementById('domResult');
+            container.innerHTML = '';
+            for(let i = 0; i < 500; i++) {
+                let div = document.createElement('div');
+                div.textContent = `未优化 ${i}`;
+                container.appendChild(div);
+            }
+            window.performanceAnalyzer.endMonitoring('优化前-直接DOM操作');
+            
+            setTimeout(() => {
+                // 测试优化后（使用DocumentFragment）
+                window.performanceAnalyzer.startMonitoring('优化后-DocumentFragment');
+                container.innerHTML = '';
+                let fragment = document.createDocumentFragment();
+                for(let i = 0; i < 500; i++) {
+                    let div = document.createElement('div');
+                    div.textContent = `已优化 ${i}`;
+                    fragment.appendChild(div);
+                }
+                container.appendChild(fragment);
+                window.performanceAnalyzer.endMonitoring('优化后-DocumentFragment');
+                
+                console.log('对比完成！查看上方两个报告对比性能差异');
+            }, 100);
+        }
+        
+        // 9. 长时间监控
+        let longMonitorInterval;
+        
+        function startLongMonitor() {
+            console.log('=== 启动5秒监控 ===');
+            window.performanceAnalyzer.startMonitoring('5秒性能监控');
+            
+            let elapsed = 0;
+            longMonitorInterval = setInterval(() => {
+                elapsed += 100;
+                if (elapsed >= 5000) {
+                    clearInterval(longMonitorInterval);
+                    window.performanceAnalyzer.endMonitoring('5秒性能监控');
+                    console.log('5秒监控结束');
+                }
+            }, 100);
+        }
+        
+        function testLongOperation() {
+            console.log('执行长时间任务...');
+            // 模拟一个长时间运行的任务
+            let start = Date.now();
+            while(Date.now() - start < 3000) {
+                // 空循环，占用CPU 3秒
+                Math.sqrt(Math.random());
+            }
+            console.log('长时间任务完成');
+        }
+        
+        // 10. 测试错误处理（验证监控不影响错误捕获）
+        function testErrorHandling() {
+            console.log('=== 测试错误处理 ===');
+            window.performanceAnalyzer.startMonitoring('错误处理测试');
+            
+            // 故意制造错误
+            setTimeout(() => {
+                try {
+                    nonExistentFunction();
+                } catch(e) {
+                    console.error('捕获到错误:', e.message);
+                }
+                window.performanceAnalyzer.endMonitoring('错误处理测试');
+            }, 100);
+        }
+        
+        // 页面加载完成后的自动测试
+        window.addEventListener('load', function() {
+            console.log('✅ 页面加载完成，性能分析器已就绪');
+            console.log('💡 提示：内存监控需要 Chrome 启动参数 --enable-precise-memory-info');
+            
+            // 可选：自动运行一个简单测试
+            setTimeout(() => {
+                console.log('运行快速测试...');
+                window.performanceAnalyzer.startMonitoring('快速测试');
+                setTimeout(() => {
+                    window.performanceAnalyzer.endMonitoring('快速测试');
+                }, 100);
+            }, 1000);
+        });
+    </script>
+	<script type="text/javascript">
+		// ========== 调试系统完整功能测试 ==========
+		(function testDebugSystem() {
+		    // 辅助函数：添加分隔线
+		    function sep(title) {
+		        console.log(`%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`, 'color: #888; font-size: 10px');
+		        console.log(`%c📌 ${title}`, 'color: #ff6b6b; font-size: 14px; font-weight: bold');
+		        console.log(`%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`, 'color: #888; font-size: 10px');
+		    }
+		    
+		    // 辅助函数：小分隔
+		    function smallSep(title) {
+		        console.log(`%c◆ ${title}`, 'color: #cca700; font-size: 12px');
+		    }
+		    
+		    console.log('%c', 'font-size: 20px');
+		    console.log('%c╔════════════════════════════════════════════════════════════════╗', 'color: #6a9955; font-size: 14px');
+		    console.log('%c║                   调试系统完整功能测试                         ║', 'color: #6a9955; font-size: 14px; font-weight: bold');
+		    console.log('%c╚════════════════════════════════════════════════════════════════╝', 'color: #6a9955; font-size: 14px');
+		    console.log('%c', 'font-size: 10px');
+		    
+		    // ==================== 1. 基础输出 ====================
+		    sep('1. 基础输出测试');
+		    
+		    smallSep('单参数输出');
+		    console.log('普通文本日志');
+		    console.warn('警告信息');
+		    console.error('错误信息');
+		    console.info('信息日志');
+		    console.debug('调试日志');
+		    
+		    smallSep('多参数输出');
+		    console.log('字符串', 123, true, false, null, undefined);
+		    console.warn('警告', '多个', '参数', 456);
+		    console.error('错误', '多个', '参数', { code: 500 });
+		    
+		    // ==================== 2. 数据类型测试 ====================
+		    sep('2. 数据类型格式化测试');
+		    
+		    smallSep('基本类型');
+		    console.log('字符串:', 'Hello World');
+		    console.log('数字:', 123, 3.14159, -50, 0);
+		    console.log('特殊数字:', NaN, Infinity, -Infinity);
+		    console.log('布尔值:', true, false);
+		    console.log('空值:', null, undefined);
+		    
+		    smallSep('引用类型');
+		    console.log('简单对象:', { name: '张三', age: 25, city: '北京' });
+		    console.log('嵌套对象:', { user: { name: '李四', info: { email: 'test@example.com', level: 5 } } });
+		    console.log('数组:', [1, 2, 3, 4, 5]);
+		    console.log('混合数组:', [1, 'text', true, { key: 'value' }, [6, 7]]);
+		    console.log('函数:', function myFunction(a, b) { return a + b; });
+		    console.log('箭头函数:', (x) => x * 2);
+		    
+		    smallSep('特殊对象');
+		    console.log('日期:', new Date());
+		    console.log('正则:', /test/gi);
+		    console.log('错误对象:', new TypeError('这是一个类型错误'));
+		    console.log('Map:', new Map([['key1', 'value1'], ['key2', 'value2'], ['key3', 'value3']]));
+		    console.log('Set:', new Set([1, 2, 3, 4, 5, 5, 5]));
+		    console.log('Symbol:', Symbol('mySymbol'));
+		    console.log('BigInt:', 9007199254740991n);
+		    
+		    smallSep('DOM元素');
+		    console.log('document.body:', document.body);
+		    console.log('新建div:', document.createElement('div'));
+		    if (document.querySelector('div')) {
+		        console.log('页面首个div:', document.querySelector('div'));
+		    }
+		    
+		    // ==================== 3. 高级控制台方法 ====================
+		    sep('3. 高级控制台方法测试');
+		    
+		    smallSep('console.trace - 堆栈跟踪');
+		    function testTraceL3() { console.trace('完整堆栈跟踪'); }
+		    function testTraceL2() { testTraceL3(); }
+		    function testTraceL1() { testTraceL2(); }
+		    testTraceL1();
+		    
+		    smallSep('console.table - 表格输出');
+		    console.table([
+		        { 姓名: '张三', 年龄: 25, 城市: '北京', 分数: 95, 12:12, 13:13},
+		        { 姓名: '李四', 年龄: 30, 城市: '上海', 分数: 88, 12:12, 13:13},
+		        { 姓名: '王五', 年龄: 28, 城市: '广州', 分数: 92, 12:12, 13:13},
+		        { 姓名: '赵六', 年龄: 35, 城市: '深圳', 分数: 85, 12:12, 13:13}
+		    ]);
+		    
+		    smallSep('console.dir - 对象属性');
+		    console.dir(document.head);
+		    
+		    if (console.dirxml) {
+		        smallSep('console.dirxml - XML/HTML输出');
+		        console.dirxml(document.body);
+		    }
+		    
+		    smallSep('console.group - 分组输出');
+		    console.group('用户信息分组');
+		    console.log('用户名: test_user');
+		    console.log('邮箱: test@example.com');
+		    console.group('地址详情');
+		    console.log('省份: 广东省');
+		    console.log('城市: 深圳市');
+		    console.log('街道: 南山区科技园');
+		    console.groupEnd();
+		    console.log('登录时间: 2024-01-15');
+		    console.groupEnd();
+		    
+		    smallSep('console.groupCollapsed - 折叠分组');
+		    console.groupCollapsed('详细信息（点击展开）');
+		    console.log('这是折叠分组的内容');
+		    console.log('默认是折叠状态');
+		    console.log('需要点击才能查看');
+		    console.groupEnd();
+		    
+		    smallSep('console.count - 计数器');
+		    console.count('页面访问');
+		    console.count('按钮点击');
+		    console.count('页面访问');
+		    console.count('按钮点击');
+		    console.count('页面访问');
+		    console.countReset('页面访问');
+		    console.count('页面访问');
+		    
+		    smallSep('console.time - 计时器');
+		    console.time('加载测试');
+		    setTimeout(() => {
+		        console.timeLog('加载测试', '中间进度');
+		        setTimeout(() => {
+		            console.timeEnd('加载测试');
+		        }, 500);
+		    }, 300);
+		    
+		    smallSep('console.assert - 断言');
+		    console.assert(1 === 2, '断言失败: 1 不等于 2');
+		    console.assert(true, '这个断言不会显示');
+		    console.assert(false, '这个断言会失败');
+		    
+		    // ==================== 4. 错误捕获测试 ====================
+		    sep('4. 错误捕获测试');
+		    
+		    smallSep('同步运行时错误');
+		    setTimeout(() => {
+		        try {
+		            // 制造引用错误
+		            // let x = undefinedVariable;
+		        } catch(e) {
+		            console.error('捕获到错误:', e.message);
+		        }
+		    }, 100);
+		    
+		    smallSep('类型错误');
+		    setTimeout(() => {
+		        try {
+		            // let x = null;
+		            // x.toString();
+		        } catch(e) {
+		            console.error('类型错误:', e);
+		        }
+		    }, 200);
+		    
+		    smallSep('Promise 错误');
+		    Promise.reject('Promise 拒绝测试');
+		    
+		    setTimeout(() => {
+		        Promise.reject(new Error('带堆栈的 Promise 错误'));
+		    }, 500);
+		    
+		    smallSep('异步错误');
+		    setTimeout(() => {
+		        // 取消注释测试
+		        // throw new Error('setTimeout 异步错误');
+		    }, 800);
+		    
+		    // ==================== 5. 网络错误测试 ====================
+		    sep('5. 网络请求错误测试');
+		    
+		    smallSep('XHR 请求失败');
+		    let xhr = new XMLHttpRequest();
+		    xhr.open('GET', 'https://invalid-domain-12345-xyz.com/api/data');
+		    xhr.timeout = 3000;
+		    xhr.ontimeout = () => console.log('XHR 超时');
+		    xhr.onerror = () => console.log('XHR 网络错误');
+		    xhr.send();
+		    
+		    smallSep('Fetch 请求失败');
+		    fetch('https://invalid-domain-12345-xyz.com/fetch-data')
+		        .catch(e => console.log('Fetch 错误:', e.message));
+		    
+		    smallSep('正常请求（用于对比）');
+		    fetch('https://httpbin.org/get')
+		        .then(res => console.log('正常请求成功:', res.status))
+		        .catch(e => console.log('正常请求失败:', e));
+		    
+		    // ==================== 6. 资源加载错误 ====================
+		    sep('6. 资源加载错误测试');
+		    
+		    smallSep('图片加载失败');
+		    let img = new Image();
+		    img.src = 'https://example.com/nonexistent-image-12345.jpg';
+		    img.onerror = () => console.log('图片加载失败');
+		    document.body.appendChild(img);
+		    
+		    smallSep('脚本加载失败');
+		    let script = document.createElement('script');
+		    script.src = 'https://example.com/nonexistent-script-12345.js';
+		    script.onerror = () => console.log('脚本加载失败');
+		    document.body.appendChild(script);
+		    
+		    smallSep('样式加载失败');
+		    let link = document.createElement('link');
+		    link.rel = 'stylesheet';
+		    link.href = 'https://example.com/nonexistent-style-12345.css';
+		    link.onerror = () => console.log('样式加载失败');
+		    document.body.appendChild(link);
+		    
+		    // ==================== 7. Worker 测试 ====================
+		    sep('7. Worker 错误测试');
+		    try {
+		        let worker = new Worker('https://example.com/nonexistent-worker-12345.js');
+		        console.log('Worker 创建尝试');
+		    } catch(e) {
+		        console.error('Worker 错误:', e.message);
+		    }
+		    
+		    // ==================== 8. WebSocket 测试 ====================
+		    sep('8. WebSocket 错误测试');
+		    try {
+		        let ws = new WebSocket('wss://invalid-websocket-url-12345.com:8080');
+		        ws.onerror = () => console.log('WebSocket 连接错误');
+		    } catch(e) {
+		        console.error('WebSocket 错误:', e.message);
+		    }
+		    
+		    // ==================== 9. 边界情况测试 ====================
+		    sep('9. 边界情况测试');
+		    
+		    smallSep('循环引用对象');
+		    let cycleObj = { name: '循环对象' };
+		    cycleObj.self = cycleObj;
+		    cycleObj.parent = { child: cycleObj };
+		    console.log('循环引用:', cycleObj);
+		    
+		    smallSep('深层嵌套对象');
+		    let deep = {};
+		    let current = deep;
+		    for (let i = 1; i <= 20; i++) {
+		        current['level' + i] = {};
+		        current = current['level' + i];
+		    }
+		    current.value = '最深层';
+		    console.log('20层嵌套:', deep);
+		    
+		    smallSep('超大数组');
+		    let hugeArray = Array.from({ length: 200 }, (_, i) => ({
+		        id: i,
+		        name: `Item ${i}`,
+		        value: Math.random() * 100
+		    }));
+		    console.log('200条数据数组:', hugeArray);
+		    
+		    smallSep('空对象/数组');
+		    console.log('空对象:', {});
+		    console.log('空数组:', []);
+		    console.log('空字符串:', '');
+		    
+		    smallSep('特殊字符串');
+		    console.log('换行符:', '第一行\n第二行\n第三行');
+		    console.log('Tab符:', '列1\t列2\t列3');
+		    console.log('Emoji:', '😀 😁 😂 🤣 😃');
+		    
+		    // ==================== 10. 压力测试 ====================
+		    sep('10. 压力测试');
+		    
+		    smallSep('快速连续输出');
+		    for (let i = 0; i < 30; i++) {
+		        console.log(`快速输出 #${i}`, { index: i, timestamp: Date.now(), random: Math.random() });
+		    }
+		    
+		    smallSep('批量警告');
+		    for (let i = 0; i < 10; i++) {
+		        console.warn(`警告 #${i}: 这是第 ${i} 条警告信息`);
+		    }
+		    
+		    smallSep('批量错误');
+		    for (let i = 0; i < 5; i++) {
+		        console.error(`错误 #${i}: 模拟错误 ${i}`);
+		    }
+		    
+		    // ==================== 11. 手动添加方法 ====================
+		    sep('11. 手动添加方法测试');
+		    
+		    if (window.add_warning) {
+		        window.add_warning('这是手动添加的日志', 'log');
+		        window.add_warning('这是手动添加的警告', 'warn');
+		        window.add_warning('这是手动添加的错误', 'error');
+		        window.add_warning('这是手动添加的信息', 'info');
+		        console.log('✅ 手动添加方法正常工作');
+		    } else {
+		        console.warn('⚠️ window.add_warning 方法未找到');
+		    }
+		    
+		    // ==================== 12. 异步延迟测试 ====================
+		    sep('12. 异步延迟测试');
+		    
+		    console.log('开始异步测试，2秒后输出...');
+		    setTimeout(() => {
+		        console.log('✅ 2秒延迟输出成功');
+		        console.warn('延迟警告信息');
+		        console.error('延迟错误信息');
+		    }, 2000);
+		    
+		    setTimeout(() => {
+		        console.log('✅ 4秒延迟输出成功');
+		        console.table([{ 延迟: '4秒', 状态: '成功' }]);
+		    }, 4000);
+		    
+		    // ==================== 13. 框架模拟测试 ====================
+		    sep('13. 框架错误模拟');
+		    
+		    console.error('[Vue warn]: 属性或方法 "message" 未定义，渲染时出错');
+		    console.error('React Error: Minified React error #31; visit https://reactjs.org/docs/error-decoder.html?invariant=31');
+		    console.warn('[Angular] 检测到循环依赖');
+		    
+		    // ==================== 14. 样式输出测试 ====================
+		    sep('14. CSS 样式输出');
+		    
+		    console.log('%c红色大字标题', 'color: #ff0000; font-size: 18px; font-weight: bold');
+		    console.log('%c蓝色背景文字', 'background: #0066cc; color: white; padding: 4px 8px; border-radius: 4px');
+		    console.log('%c绿色成功', 'color: #00aa00; font-size: 14px', '%c红色错误', 'color: #ff0000', '%c橙色警告', 'color: #ff8800');
+		    
+		    // ==================== 15. 性能测试 ====================
+		    sep('15. 性能测试');
+		    
+		    console.time('性能测试循环');
+		    let sum = 0;
+		    for (let i = 0; i < 100000; i++) {
+		        sum += i;
+		    }
+		    console.timeEnd('性能测试循环');
+		    console.log('循环结果:', sum);
+		    
+		    // ==================== 完成 ====================
+		    console.log('%c', 'font-size: 10px');
+		    console.log('%c╔════════════════════════════════════════════════════════════════╗', 'color: #6a9955; font-size: 14px');
+		    console.log('%c║                        测试完成！                              ║', 'color: #6a9955; font-size: 14px; font-weight: bold');
+		    console.log('%c║                   请查看左侧调试窗口输出                        ║', 'color: #6a9955; font-size: 12px');
+		    console.log('%c╚════════════════════════════════════════════════════════════════╝', 'color: #6a9955; font-size: 14px');
+		    console.log('%c', 'font-size: 10px');
+		    
+		    console.log('💡 提示:');
+		    console.log('   • 拖拽标题栏可移动调试窗口');
+		    console.log('   • 点击"清空"按钮可清除所有日志');
+		    console.log('   • 点击左下角按钮可隐藏/显示调试窗口');
+		    console.log('   • 不同类型的日志有不同颜色标识');
+		    console.log('   • 错误信息会显示完整堆栈');
+		    console.log('已完成');
+		})();
+	</script>
+</body>
+</html>
