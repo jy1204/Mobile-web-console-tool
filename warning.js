@@ -247,6 +247,7 @@
 		cursor: pointer;
 		font-size: 12px;
 		outline: none;
+		transform: scale(1);
 	`;
     clearBtn.textContent = '清空';
 	clearBtn.addEventListener('click',function() {
