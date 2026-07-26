@@ -65,9 +65,15 @@
 		window.addEventListener('touchend', stopDrag);
 	}
     // 立即创建调试窗口容器
+	// 外层容器（挂载到body，仅做影子宿主）
+	const warningHost = document.createElement('div');
+	warningHost.className = 'warningHost';
+	warningHost.id = 'warningHost';
+	// 开启影子DOM
+	const warningShadow = warningHost.attachShadow({mode:"open"});
     let warningBox = document.createElement('div');
-    warningBox.className = 'warning-box';
-	warningBox.id = 'warning-box';
+    warningBox.className = 'warningBox';
+	warningBox.id = 'warningBox';
 	warningBox.style.cssText = `
 	    position: fixed;
 	    top: 0;
@@ -279,10 +285,12 @@
     
     // 立即添加到 body
     if (document.body) {
-        document.body.appendChild(warningBox);
+		warningShadow.appendChild(warningBox);
+		document.body.appendChild(warningHost)
     } else {
         document.addEventListener('DOMContentLoaded', function() {
-            document.body.appendChild(warningBox);
+            warningShadow.appendChild(warningBox);
+            document.body.appendChild(warningHost)
         });
     }
     window.addEventListener('resize',function(){
