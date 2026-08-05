@@ -384,7 +384,9 @@
         }
         
         // 正则
-        if (value instanceof RegExp) return value.toString();
+        if (value && typeof value === 'object' && value.constructor?.name === 'RegExp') {
+          return window._escapeHtml(value.toString());
+        }
         
         // 日期
         if (value instanceof Date) return value.toISOString();
