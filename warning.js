@@ -69,6 +69,7 @@
 	const warningHost = document.createElement('div');
 	warningHost.className = 'warningHost';
 	warningHost.id = 'warningHost';
+	warningHost.style = "all: initial";
 	// 开启影子DOM
 	const warningShadow = warningHost.attachShadow({mode:"open"});
     let warningBox = document.createElement('div');
